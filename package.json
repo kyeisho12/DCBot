@@ -1,0 +1,19 @@
+{
+  "name": "discord-hours-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that tracks work hours via /clockin and /clockout, storing data in Google Sheets",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "keywords": ["discord", "bot", "hours", "timesheet", "google-sheets"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "googleapis": "^144.0.0",
+    "dotenv": "^16.4.5",
+    "dayjs": "^1.11.10"
+  }
+}
