@@ -105,15 +105,4 @@ DCBot/
 └── package.json
 ```
 
-## Deployment
-
-For 24/7 hosting, consider:
-
-- **Railway** — Connect GitHub, add env vars, deploy
-- **DigitalOcean / Vultr** — Spin up a small VPS, install Node.js, run `npm start` with PM2 or systemd
-
 Ensure all environment variables are set in your hosting provider's dashboard.
-
-## License
-
-ISC
