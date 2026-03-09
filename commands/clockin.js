@@ -17,7 +17,7 @@ module.exports = {
     .setName('clockin')
     .setDescription('Clock in and record your work start time'),
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
     const userId = interaction.user.id;
     const username = interaction.user.username;
 

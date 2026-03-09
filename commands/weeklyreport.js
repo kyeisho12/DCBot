@@ -17,7 +17,7 @@ module.exports = {
     .setDescription('View weekly work hours leaderboard (admin only)')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
 
     try {
       const reportData = await sheetsService.getWeeklyReportData();

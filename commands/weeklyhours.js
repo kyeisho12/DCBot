@@ -15,7 +15,7 @@ module.exports = {
     .setName('weeklyhours')
     .setDescription('Show your total hours for the current week'),
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
     const userId = interaction.user.id;
 
     try {

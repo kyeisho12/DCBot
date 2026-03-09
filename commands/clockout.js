@@ -17,7 +17,7 @@ module.exports = {
     .setName('clockout')
     .setDescription('Clock out and record your work end time'),
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
     const userId = interaction.user.id;
     const username = interaction.user.username;
     const clockOutTime = getCurrentTimestamp();
