@@ -20,7 +20,15 @@ const CLOCKLOG_HEADER = ['DATE', 'USER', 'DISCORD_ID', 'CLOCK_IN', 'CLOCK_OUT', 
 let sheets = null;
 let spreadsheetId = null;
 
-/** @type {Map<string, { userId: string, username: string, clockInTime: string }>} */
+/**
+ * Session model:
+ * {
+ *   userId: string,
+ *   username: string,
+ *   clockInTime: string,
+ *   pauses: Array<{ start: string, end: string|null }>
+ * }
+ */
 const activeSessions = new Map();
 
 // ---------------------------------------------------------------------------
@@ -116,7 +124,12 @@ async function ensureSheetAndHeader() {
  * Store a clock-in session in memory. Does not write to sheets.
  */
 function recordClockIn(userId, username, clockInTime) {
-  activeSessions.set(userId, { userId, username, clockInTime });
+  activeSessions.set(userId, {
+    userId,
+    username,
+    clockInTime,
+    pauses: [] // Array of { start, end }
+  });
   logger.info('sheets', `Clock-in recorded in memory for user ${userId}`);
 }
 
@@ -125,6 +138,39 @@ function recordClockIn(userId, username, clockInTime) {
  */
 function hasActiveClockIn(userId) {
   return activeSessions.has(userId);
+}
+
+/**
+ * Returns true if the user is currently paused.
+ */
+function isPaused(userId) {
+  const session = activeSessions.get(userId);
+  if (!session || !session.pauses) return false;
+  return session.pauses.length > 0 && session.pauses[session.pauses.length - 1].end === null;
+}
+
+/**
+ * Pause the session for the user.
+ * Throws if not clocked in or already paused.
+ */
+function pauseSession(userId) {
+  const session = activeSessions.get(userId);
+  if (!session) throw new Error('You must clock in first.');
+  if (isPaused(userId)) throw new Error('Session is already paused.');
+  session.pauses.push({ start: getCurrentTimestamp(), end: null });
+  logger.info('sheets', `Session paused for user ${userId}`);
+}
+
+/**
+ * Continue the session for the user.
+ * Throws if not clocked in or not paused.
+ */
+function continueSession(userId) {
+  const session = activeSessions.get(userId);
+  if (!session) throw new Error('You must clock in first.');
+  if (!isPaused(userId)) throw new Error('Session is not paused.');
+  session.pauses[session.pauses.length - 1].end = getCurrentTimestamp();
+  logger.info('sheets', `Session continued for user ${userId}`);
 }
 
 /**
@@ -139,8 +185,18 @@ async function processClockOut(userId, clockOutTime) {
     throw new Error('You must clock in first.');
   }
 
-  const { username, clockInTime } = session;
-  const hoursWorked = calculateHours(clockInTime, clockOutTime);
+  const { username, clockInTime, pauses } = session;
+  let totalPauseMs = 0;
+  if (pauses && pauses.length > 0) {
+    for (const pause of pauses) {
+      const start = pause.start;
+      const end = pause.end || clockOutTime;
+      totalPauseMs += (parseTimestamp(end).valueOf() - parseTimestamp(start).valueOf());
+    }
+  }
+  const totalMs = parseTimestamp(clockOutTime).valueOf() - parseTimestamp(clockInTime).valueOf();
+  const activeMs = totalMs - totalPauseMs;
+  const hoursWorked = Math.round((activeMs / 1000 / 60 / 60) * 100) / 100;
 
   // Format for ClockLog: DATE (M/D/YYYY) | USER | DISCORD_ID | CLOCK_IN | CLOCK_OUT | HOURS
   const dateStr = formatDateForDisplay(clockOutTime);
