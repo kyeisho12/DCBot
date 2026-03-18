@@ -330,6 +330,8 @@ module.exports = {
   ensureSheetAndHeader,
   recordClockIn,
   hasActiveClockIn,
+  pauseSession,
+  continueSession,
   processClockOut,
   getUserWeeklyHours,
   getWeeklyReportData,
