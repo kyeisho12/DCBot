@@ -10,7 +10,7 @@
  */
 
 const { google } = require('googleapis');
-const { getWeekStart, calculateHours, formatDateForDisplay, formatTimeForDisplay, dayjs, parseTimestamp } = require('../utils/timeUtils');
+const { getWeekStart, calculateHours, formatDateForDisplay, formatTimeForDisplay, dayjs, parseTimestamp, getCurrentTimestamp } = require('../utils/timeUtils');
 const logger = require('../utils/logger');
 const { withRetry } = require('../utils/retry');
 
